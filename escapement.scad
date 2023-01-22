@@ -171,7 +171,7 @@ StdThickness = 3 * BSU;
 /*
 The Escape Wheel parameters.
 */
-EwTipRadius = 60 * BSU;
+EwTipRadius = 40 * BSU; // Distance from the center of the wheel to the tip of the tooth.
 EwRootRadius = 0.75 * EwTipRadius;
 EwRimWidth = 0.085 * EwTipRadius;
 EwToothCount = 30;
@@ -179,7 +179,8 @@ EwToothTrailingAngle = 18;
 EwToothIncludedAngle = 12;
 EwSpokesCount = 5;
 EwSpokeWidth = EwRimWidth;
-EwHubOuterRadius = 7 * BSU;
+// EwHubOuterRadius = 7 * BSU;
+EwHubOuterRadius = 1.5/0.55 * BSU;
 EwHubInnerRadius = 0.55 * EwHubOuterRadius;
 EwAngularPitch = 360 / EwToothCount;
 EwInterSpokeAngle = 360 / EwSpokesCount;
@@ -215,21 +216,29 @@ CnDn = sqrt( pow( ForkOuterRadius, 2 ) +
     cos( ForkLiftAngle ) );
 DnCnF = asin( (ForkInnerRadius / CnDn ) * sin( ForkLiftAngle ) );
 ForkArmWidth = ForkPalletLinearWidth;
-ForkHubOuterRadius = 5 * BSU;
-ForkHubInnerRadius = 0.5 * ForkHubOuterRadius;
+// ForkHubOuterRadius = 5 * BSU;
+// ForkHubInnerRadius = 0.5 * ForkHubOuterRadius;
+ForkHubOuterRadius = EwHubOuterRadius;
+ForkHubInnerRadius = EwHubInnerRadius;
 FokrArmLength = ForkOuterRadius - ForkHubInnerRadius;
 
-ew( EwTipRadius,
-    EwRootRadius,
-    EwRimWidth,
-    EwToothCount,
-    EwToothTrailingAngle,
-    EwToothIncludedAngle,
-    EwSpokesCount,
-    EwHubOuterRadius,
-    EwHubInnerRadius );
+module escapement_wheel()
+{
+    ew( EwTipRadius,
+        EwRootRadius,
+        EwRimWidth,
+        EwToothCount,
+        EwToothTrailingAngle,
+        EwToothIncludedAngle,
+        EwSpokesCount,
+        EwHubOuterRadius,
+        EwHubInnerRadius );
+}
 /*
 The fork's axis of symmetry is along the OX axis.
 */
-translate( [ ForkWheelDistance, 0, 0 ] )
-    dbfork( ForkHubOuterRadius, ForkHubInnerRadius );
+module escapement_fork()
+{
+    translate( [ ForkWheelDistance, 0, 0 ] )
+        dbfork( ForkHubOuterRadius, ForkHubInnerRadius );
+}
