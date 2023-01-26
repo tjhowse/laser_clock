@@ -1,9 +1,12 @@
 package main
+
 import (
+	"flag"
 	"fmt"
-	"sort"
 	"math"
+	"sort"
 )
+
 const MIN_TOOTH = 9
 const MAX_TOOTH = 100
 
@@ -17,7 +20,7 @@ type ratio struct {
 // This returns the sum of differences between the tooth count on each
 // gear pair. This is used to minimise the size differences of the gears.
 func (r *ratio) diff() int {
-	return int(math.Abs(float64(r.a - r.b)) + math.Abs(float64(r.c - r.d)))
+	return int(math.Abs(float64(r.a-r.b)) + math.Abs(float64(r.c-r.d)))
 }
 
 func calc_ratios(a int, b int) {
@@ -28,7 +31,7 @@ func calc_ratios(a int, b int) {
 			for k := MIN_TOOTH; k <= MAX_TOOTH; k++ {
 				for l := MIN_TOOTH; l <= MAX_TOOTH; l++ {
 					// Filter out any non-relatively-prime pairs
-					if float64(i)/float64(j) - float64(i/j) == 0 || float64(k)/float64(l) - float64(k/l) == 0 {
+					if float64(i)/float64(j)-float64(i/j) == 0 || float64(k)/float64(l)-float64(k/l) == 0 {
 						continue
 					}
 					if resired_ratio == (float64(i) / float64(j) * float64(k) / float64(l)) {
@@ -45,13 +48,17 @@ func calc_ratios(a int, b int) {
 		sortme = append(sortme, r)
 	}
 	sort.Slice(sortme, func(i, j int) bool {
-			return sortme[i].diff() < sortme[j].diff()
-		})
+		return sortme[i].diff() < sortme[j].diff()
+	})
+	fmt.Printf("Found %d results for a %d:%d tooth ratio\n", len(sortme), a, b)
 	for _, r := range sortme {
 		fmt.Printf("%d:%d %d:%d\n", r.a, r.b, r.c, r.d)
 	}
 }
 
 func main() {
-	calc_ratios(1, 60)
+	a := flag.Int("a", 1, "First gear tooth count")
+	b := flag.Int("b", 60, "First gear tooth count")
+	flag.Parse()
+	calc_ratios(*a, *b)
 }
