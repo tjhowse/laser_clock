@@ -114,9 +114,9 @@ z_scale=1;
 xy_scale=0;
 batch_export=false;
 
+part_revision_number = 2;
 // These are load-bearing comments. The make script awks this file for
 // lines between these markers to determine what it needs to render to a file.
-part_revision_number = 2;
 // PARTSMARKERSTART
 print_escapement_fork = false;
 print_escapement_wheel = false;
