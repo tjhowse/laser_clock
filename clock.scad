@@ -110,27 +110,47 @@ module string_hub(z_scale=1, xy_scale=0) {
     translate([xy_scale*big*2,xy_scale*big*2,z_scale*thickness*3]) tjring(624_od/2, big, thickness);
 }
 
-// gear_pair(60, 15, 30, 15, 12.5);
-// gear_pair(60, 9, 60, 15, 3);
-// string_hub(1, 0);
-// string_hub(0, 1);
-// projection()
-// pendulum_washer();
 z_scale=1;
 xy_scale=0;
-// pendulum_washers(z_scale, xy_scale);
-render()
-{
-    rotate([0,0,180]){
-        scale([1,1,2]) escapement_fork();
-        scale([1,1,2]) escapement_wheel();
-        translate([ForkWheelDistance,0,z_scale*thickness*2]) rotate([0,0,90]) union() {
-            pendulum_mount();
-           translate([0,0,z_scale*thickness]) pendulum_washers(z_scale, xy_scale);
+batch_export=false;
+
+// These are load-bearing comments. The make script awks this file for
+// lines between these markers to determine what it needs to render to a file.
+part_revision_number = 2;
+// PARTSMARKERSTART
+print_escapement_fork = false;
+print_escapement_wheel = false;
+print_pendulum_mount = false;
+print_pendulum_washers = false;
+print_hanger_washers = false;
+print_frame = false;
+print_string_hub = false;
+// PARTSMARKEREND
+
+if (batch_export) {
+    if (print_escapement_fork) projection() escapement_fork();
+    if (print_escapement_wheel) projection() escapement_wheel();
+    if (print_pendulum_mount) projection() pendulum_mount();
+    if (print_pendulum_washers) projection() pendulum_washers(z_scale, xy_scale);
+    if (print_hanger_washers) projection() hanger_washers(z_scale, xy_scale);
+    if (print_frame) projection() frame();
+    if (print_string_hub) projection() string_hub(z_scale, xy_scale);
+
+} else {
+
+    render()
+    {
+        rotate([0,0,180]){
+            scale([1,1,2]) escapement_fork();
+            scale([1,1,2]) escapement_wheel();
+            translate([ForkWheelDistance,0,z_scale*thickness*2]) rotate([0,0,90]) union() {
+                pendulum_mount();
+            translate([0,0,z_scale*thickness]) pendulum_washers(z_scale, xy_scale);
+            }
+            translate([hanger_x, hanger_y,0]) hanger_washers(z_scale, xy_scale);
+            translate([0,0,-z_scale*thickness]) frame();
+            translate([0,0,z_scale*thickness*6]) frame();
         }
-        translate([hanger_x, hanger_y,0]) hanger_washers(z_scale, xy_scale);
-        translate([0,0,-z_scale*thickness]) frame();
-        translate([0,0,z_scale*thickness*6]) frame();
+        translate([0,0,z_scale*thickness*2]) string_hub(z_scale, xy_scale);
     }
-    translate([0,0,z_scale*thickness*2]) string_hub(z_scale, xy_scale);
 }
