@@ -171,7 +171,7 @@ StdThickness = 3 * BSU;
 /*
 The Escape Wheel parameters.
 */
-EwTipRadius = 80 * BSU; // Distance from the center of the wheel to the tip of the tooth.
+EwTipRadius = 60 * BSU; // Distance from the center of the wheel to the tip of the tooth.
 EwRootRadius = 0.75 * EwTipRadius;
 EwRimWidth = 0.085 * EwTipRadius;
 EwToothCount = 30;
@@ -180,7 +180,7 @@ EwToothIncludedAngle = 12;
 EwSpokesCount = 5;
 EwSpokeWidth = EwRimWidth;
 // EwHubOuterRadius = 7 * BSU;
-EwHubOuterRadius = 5/0.55 * BSU;
+EwHubOuterRadius = 6.5/0.55 * BSU;
 EwHubInnerRadius = 0.55 * EwHubOuterRadius;
 EwAngularPitch = 360 / EwToothCount;
 EwInterSpokeAngle = 360 / EwSpokesCount;
