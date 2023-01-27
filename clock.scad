@@ -25,21 +25,26 @@ wt = 4;
 shaft_r = 2;
 thickness = 3;
 
+hanger_x = ForkWheelDistance/2;
+hanger_y = -ForkWheelDistance;
+
 // This is the part that has a bunch of holes in it for hold the parts
 // in place.
 module frame() {
     holes = [
                 [0,0,0], // Escapement wheel
                 [ForkWheelDistance,0,0], // Escapement fork
-                [ForkWheelDistance/2,-ForkWheelDistance/sqrt(3),0], // Escapement fork
-            ];
+                [hanger_x,hanger_y,0], // Hanger
+    ];
     // concat(holes, [0 ,0]);
     difference () {
         for (i = [0:len(holes)-1]) {
-            hull() {
-                translate(holes[i]) cylinder(r=wt + shaft_r, h=thickness, $fn=32);
-                if (i < len(holes)-1) {
-                    translate(holes[i+1]) cylinder(r=wt + shaft_r, h=thickness, $fn=32);
+            for (j = [0:len(holes)-1]) {
+                if (i != j) {
+                    hull() {
+                        translate(holes[j]) cylinder(r=wt + shaft_r, h=thickness, $fn=32);
+                        translate(holes[i]) cylinder(r=wt + shaft_r, h=thickness, $fn=32);
+                    }
                 }
             }
         }
@@ -56,6 +61,7 @@ module frame() {
 pendulum_mount_arm_length = 60;
 pendulum_mount_arm_width = 6;
 624_od = 13;
+624_id = 4;
 
 // This part glues onto the back of the escapement_fork and hangs down
 // a little way to provide a mounting point for the pendulum arm.
@@ -75,6 +81,12 @@ module pendulum_washers(z_scale=1, xy_scale=0) {
     translate([0,0,0]) tjring(ForkHubInnerRadius, ForkHubOuterRadius, thickness);
     translate([xy_scale*ForkHubOuterRadius*2,0,z_scale*thickness]) tjring(ForkHubInnerRadius, ForkHubOuterRadius, thickness);
     translate([xy_scale*ForkHubOuterRadius,xy_scale*ForkHubOuterRadius*sqrt(3),z_scale*thickness*2]) tjring(ForkHubInnerRadius, ForkHubOuterRadius, thickness);
+}
+
+module hanger_washers(z_scale=1, xy_scale=0) {
+    for (i = [0:6]) {
+        translate([i*(624_id/2+wt)*2*xy_scale,0,i*z_scale*thickness]) tjring(624_id/2,624_id/2+wt,thickness);
+    }
 }
 
 string_hub_r = 30;
@@ -110,14 +122,15 @@ xy_scale=0;
 render()
 {
     rotate([0,0,180]){
-        // escapement_fork();
-        // escapement_wheel();
-        translate([ForkWheelDistance,0,z_scale*thickness]) rotate([0,0,90]) union() {
+        scale([1,1,2]) escapement_fork();
+        scale([1,1,2]) escapement_wheel();
+        translate([ForkWheelDistance,0,z_scale*thickness*2]) rotate([0,0,90]) union() {
             pendulum_mount();
            translate([0,0,z_scale*thickness]) pendulum_washers(z_scale, xy_scale);
         }
+        translate([hanger_x, hanger_y,0]) hanger_washers(z_scale, xy_scale);
         translate([0,0,-z_scale*thickness]) frame();
-        translate([0,0,z_scale*thickness*5]) frame();
+        translate([0,0,z_scale*thickness*6]) frame();
     }
-    translate([0,0,z_scale*thickness]) string_hub(z_scale, xy_scale);
+    translate([0,0,z_scale*thickness*2]) string_hub(z_scale, xy_scale);
 }
