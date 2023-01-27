@@ -80,7 +80,9 @@ module pendulum_mount() {
 module pendulum_washers(z_scale=1, xy_scale=0) {
     translate([0,0,0]) tjring(ForkHubInnerRadius, ForkHubOuterRadius, thickness);
     translate([xy_scale*ForkHubOuterRadius*2,0,z_scale*thickness]) tjring(ForkHubInnerRadius, ForkHubOuterRadius, thickness);
+    translate([0,xy_scale*ForkHubOuterRadius*2,z_scale*thickness]) tjring(ForkHubInnerRadius, ForkHubOuterRadius, thickness);
     translate([xy_scale*ForkHubOuterRadius,xy_scale*ForkHubOuterRadius*sqrt(3),z_scale*thickness*2]) tjring(ForkHubInnerRadius, ForkHubOuterRadius, thickness);
+    translate([xy_scale*ForkHubOuterRadius,xy_scale*ForkHubOuterRadius*sqrt(3),z_scale*thickness*3]) tjring(ForkHubInnerRadius, ForkHubOuterRadius, thickness);
 }
 
 module hanger_washers(z_scale=1, xy_scale=0) {
@@ -110,17 +112,32 @@ module string_hub(z_scale=1, xy_scale=0) {
     translate([xy_scale*big*2,xy_scale*big*2,z_scale*thickness*3]) tjring(624_od/2, big, thickness);
 }
 
+// alignment_tool_xy = 80;
+
+// This is a jig to set the angle between the pendulum arm and the escapement fork.
+module alignment_tool(z_scale, xy_scale) {
+    difference () {
+        // translate([-alignment_tool_xy,ForkHubOuterRadius,0]) cube([alignment_tool_xy, alignment_tool_xy,thickness]);
+        echo(ForkWheelPalletAngle);
+        linear_extrude(thickness) polygon(points=[[0,0],[0,pendulum_mount_arm_length/2],[-pendulum_mount_arm_length*tan(ForkWheelPalletAngle/2),pendulum_mount_arm_length/2]]);
+        #union() {
+            translate([-ForkWheelDistance,0,0]) escapement_fork();
+            rotate([0,0,90]) pendulum_mount();
+        }
+    }
+
+}
+
 z_scale=1;
 xy_scale=0;
 batch_export=false;
 
-part_revision_number = 2;
+part_revision_number = 3;
 // These are load-bearing comments. The make script awks this file for
 // lines between these markers to determine what it needs to render to a file.
 // PARTSMARKERSTART
 print_escapement_fork = false;
 print_escapement_wheel = false;
-print_pendulum_mount = false;
 print_pendulum_washers = false;
 print_hanger_washers = false;
 print_frame = false;
@@ -128,24 +145,29 @@ print_string_hub = false;
 // PARTSMARKEREND
 
 if (batch_export) {
-    if (print_escapement_fork) projection() escapement_fork();
+    if (print_escapement_fork) projection() union() {
+                escapement_fork();
+                translate([ForkWheelDistance,0,0]) rotate([0,0,90]) pendulum_mount();
+            }
     if (print_escapement_wheel) projection() escapement_wheel();
-    if (print_pendulum_mount) projection() pendulum_mount();
     if (print_pendulum_washers) projection() pendulum_washers(z_scale, xy_scale);
     if (print_hanger_washers) projection() hanger_washers(z_scale, xy_scale);
     if (print_frame) projection() frame();
     if (print_string_hub) projection() string_hub(z_scale, xy_scale);
 
 } else {
+                // projection()alignment_tool(z_scale, xy_scale);
 
     render()
     {
         rotate([0,0,180]){
-            scale([1,1,2]) escapement_fork();
+            scale([1,1,2]) union() {
+                escapement_fork();
+                translate([ForkWheelDistance,0,0]) rotate([0,0,90]) pendulum_mount();
+            }
             scale([1,1,2]) escapement_wheel();
-            translate([ForkWheelDistance,0,z_scale*thickness*2]) rotate([0,0,90]) union() {
-                pendulum_mount();
-            translate([0,0,z_scale*thickness]) pendulum_washers(z_scale, xy_scale);
+            translate([ForkWheelDistance,0,z_scale*thickness]) rotate([0,0,90]) union() {
+                translate([0,0,z_scale*thickness]) pendulum_washers(z_scale, xy_scale);
             }
             translate([hanger_x, hanger_y,0]) hanger_washers(z_scale, xy_scale);
             translate([0,0,-z_scale*thickness]) frame();
