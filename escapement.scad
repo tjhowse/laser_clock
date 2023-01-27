@@ -124,7 +124,7 @@ module dbfork(
         */
         rotate( 90 + ForkEntryArmAngle, [ 0, 0, 1 ] )
         translate( [ fHubInnerRadius, -ForkArmWidth / 2, 0 ] )
-        cube( [ FokrArmLength, ForkArmWidth, fThickness ] );
+        cube( [ ForkArmLength, ForkArmWidth, fThickness ] );
         /*
         The pallet itself.
         */
@@ -145,7 +145,7 @@ module dbfork(
         */
         rotate( -90 - ForkExitArmAngle, [ 0, 0, 1 ] )
         translate( [ fHubInnerRadius, -ForkArmWidth / 2, 0 ] )
-        cube( [ FokrArmLength, ForkArmWidth, fThickness ] );
+        cube( [ ForkArmLength, ForkArmWidth, fThickness ] );
         /*
         The pallet itself.
         */
@@ -220,7 +220,7 @@ ForkArmWidth = ForkPalletLinearWidth;
 // ForkHubInnerRadius = 0.5 * ForkHubOuterRadius;
 ForkHubOuterRadius = EwHubOuterRadius;
 ForkHubInnerRadius = EwHubInnerRadius;
-FokrArmLength = ForkOuterRadius - ForkHubInnerRadius;
+ForkArmLength = ForkOuterRadius - ForkHubInnerRadius;
 
 module escapement_wheel()
 {
