@@ -23,7 +23,7 @@ module gear_pair(shaft_offset, tooth_count_1, tooth_count_2, gear_thickness, bor
 
 wt = 4;
 shaft_r = 2;
-thickness = 3;
+thickness = 2.87;
 
 hanger_x = ForkWheelDistance/2;
 hanger_y = -ForkWheelDistance;
@@ -116,17 +116,42 @@ module string_hub(z_scale=1, xy_scale=0) {
 // easier to mount an m8 threaded rod as a pendulum.
 module m8_pendulum_hanger() {
     pend_shaft_r = 4;
+    m8_nut_r = 12.77/2;
     total_x = pendulum_mount_arm_width+2*wt;
     difference() {
-        cube([total_x, 2*wt+pend_shaft_r*2+thickness, thickness]);
-        translate([wt,wt,0]) cube([pendulum_mount_arm_width, thickness, 100]);
-        translate([total_x/2, wt+thickness+pend_shaft_r, 0]) cylinder(r=pend_shaft_r, h=100, $fn=16);
+        cube([total_x, 2*wt+m8_nut_r+pend_shaft_r+thickness, thickness]);
+        translate([wt+laser_kerf,wt,0]) cube([pendulum_mount_arm_width-laser_kerf*2, thickness, 100]);
+        translate([total_x/2, wt+thickness+m8_nut_r, 0]) union() {
+            cylinder(r=pend_shaft_r, h=100, $fn=16);
+        }
+    }
+}
+
+// This is the length of one bead and one bit of string.
+// 0-0-0-0-0-0-0-...
+// | | <-- This distance
+bead_chain_straight_pitch = 60.6/10;
+bead_r = 4.36/2;
+bead_cord_r = 1.61/2;
+bead_chain_hub_r = 30;
+
+module bead_chain_segment() {
+    sphere(r=bead_r, $fn=16);
+    rotate([90,0,0]) cylinder(r=bead_cord_r, h=bead_chain_straight_pitch-bead_r, $fn=16);
+}
+
+module bead_chain_ring() {
+    bead_n = 20;
+    bead_chain_r = bead_chain_straight_pitch/tan(360/bead_n);
+    for (i = [0:360/bead_n:360]) {
+        rotate([0,0,i]) translate([bead_chain_r,0,0]) rotate([0,0,(-360/bead_n)/2]) bead_chain_segment();
     }
 }
 
 z_scale=1;
 xy_scale=0;
 batch_export=false;
+laser_kerf = 0.3;
 
 part_revision_number = 3;
 // These are load-bearing comments. The make script awks this file for
@@ -155,7 +180,8 @@ if (batch_export) {
 
 } else {
                 // projection()alignment_tool(z_scale, xy_scale);
-    m8_pendulum_hanger();
+    // projection() m8_pendulum_hanger();
+    bead_chain_ring();
     // render()
     // {
     //     rotate([0,0,180]){
