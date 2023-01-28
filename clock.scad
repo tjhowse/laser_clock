@@ -112,20 +112,16 @@ module string_hub(z_scale=1, xy_scale=0) {
     translate([xy_scale*big*2,xy_scale*big*2,z_scale*thickness*3]) tjring(624_od/2, big, thickness);
 }
 
-// alignment_tool_xy = 80;
-
-// This is a jig to set the angle between the pendulum arm and the escapement fork.
-module alignment_tool(z_scale, xy_scale) {
-    difference () {
-        // translate([-alignment_tool_xy,ForkHubOuterRadius,0]) cube([alignment_tool_xy, alignment_tool_xy,thickness]);
-        echo(ForkWheelPalletAngle);
-        linear_extrude(thickness) polygon(points=[[0,0],[0,pendulum_mount_arm_length/2],[-pendulum_mount_arm_length*tan(ForkWheelPalletAngle/2),pendulum_mount_arm_length/2]]);
-        #union() {
-            translate([-ForkWheelDistance,0,0]) escapement_fork();
-            rotate([0,0,90]) pendulum_mount();
-        }
+// This is a little part that attaches to the pendulum arm and makes it
+// easier to mount an m8 threaded rod as a pendulum.
+module m8_pendulum_hanger() {
+    pend_shaft_r = 4;
+    total_x = pendulum_mount_arm_width+2*wt;
+    difference() {
+        cube([total_x, 2*wt+pend_shaft_r*2+thickness, thickness]);
+        translate([wt,wt,0]) cube([pendulum_mount_arm_width, thickness, 100]);
+        translate([total_x/2, wt+thickness+pend_shaft_r, 0]) cylinder(r=pend_shaft_r, h=100, $fn=16);
     }
-
 }
 
 z_scale=1;
@@ -136,43 +132,45 @@ part_revision_number = 3;
 // These are load-bearing comments. The make script awks this file for
 // lines between these markers to determine what it needs to render to a file.
 // PARTSMARKERSTART
-print_escapement_fork = false;
-print_escapement_wheel = false;
-print_pendulum_washers = false;
-print_hanger_washers = false;
-print_frame = false;
-print_string_hub = false;
+export_escapement_fork = false;
+export_escapement_wheel = false;
+export_pendulum_washers = false;
+export_hanger_washers = false;
+export_frame = false;
+export_string_hub = false;
+export_m8_pendulum_hanger = false;
 // PARTSMARKEREND
 
 if (batch_export) {
-    if (print_escapement_fork) projection() union() {
+    if (export_escapement_fork) projection() union() {
                 escapement_fork();
                 translate([ForkWheelDistance,0,0]) rotate([0,0,90]) pendulum_mount();
             }
-    if (print_escapement_wheel) projection() escapement_wheel();
-    if (print_pendulum_washers) projection() pendulum_washers(z_scale, xy_scale);
-    if (print_hanger_washers) projection() hanger_washers(z_scale, xy_scale);
-    if (print_frame) projection() frame();
-    if (print_string_hub) projection() string_hub(z_scale, xy_scale);
+    if (export_escapement_wheel) projection() escapement_wheel();
+    if (export_pendulum_washers) projection() pendulum_washers(z_scale, xy_scale);
+    if (export_hanger_washers) projection() hanger_washers(z_scale, xy_scale);
+    if (export_frame) projection() frame();
+    if (export_string_hub) projection() string_hub(z_scale, xy_scale);
+    if (export_m8_pendulum_hanger) projection() m8_pendulum_hanger(z_scale, xy_scale);
 
 } else {
                 // projection()alignment_tool(z_scale, xy_scale);
-
-    render()
-    {
-        rotate([0,0,180]){
-            scale([1,1,2]) union() {
-                escapement_fork();
-                translate([ForkWheelDistance,0,0]) rotate([0,0,90]) pendulum_mount();
-            }
-            scale([1,1,2]) escapement_wheel();
-            translate([ForkWheelDistance,0,z_scale*thickness]) rotate([0,0,90]) union() {
-                translate([0,0,z_scale*thickness]) pendulum_washers(z_scale, xy_scale);
-            }
-            translate([hanger_x, hanger_y,0]) hanger_washers(z_scale, xy_scale);
-            translate([0,0,-z_scale*thickness]) frame();
-            translate([0,0,z_scale*thickness*6]) frame();
-        }
-        translate([0,0,z_scale*thickness*2]) string_hub(z_scale, xy_scale);
-    }
+    m8_pendulum_hanger();
+    // render()
+    // {
+    //     rotate([0,0,180]){
+    //         scale([1,1,2]) union() {
+    //             escapement_fork();
+    //             translate([ForkWheelDistance,0,0]) rotate([0,0,90]) pendulum_mount();
+    //         }
+    //         scale([1,1,2]) escapement_wheel();
+    //         translate([ForkWheelDistance,0,z_scale*thickness]) rotate([0,0,90]) union() {
+    //             translate([0,0,z_scale*thickness]) pendulum_washers(z_scale, xy_scale);
+    //         }
+    //         translate([hanger_x, hanger_y,0]) hanger_washers(z_scale, xy_scale);
+    //         translate([0,0,-z_scale*thickness]) frame();
+    //         translate([0,0,z_scale*thickness*6]) frame();
+    //     }
+    //     translate([0,0,z_scale*thickness*2]) string_hub(z_scale, xy_scale);
+    // }
 }

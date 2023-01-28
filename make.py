@@ -37,9 +37,9 @@ with open(SCAD_FILE_NAME) as f:
             part_revsion = int(line.split("=")[1].strip()[:-1])
             continue
         if grab_mode:
-            files.append(line.split()[0].removeprefix("print_"))
+            files.append(line.split()[0].removeprefix("export_"))
 print("Part revsion:", part_revsion)
 for file in files:
     print(f"Processing {file}")
-    os.system(f"openscad -o {file}.dxf {SCAD_FILE_NAME} -D z_scale=0 -D xy_scale=1 -D batch_export=true -D print_{file}=true")
+    os.system(f"openscad -o {file}.dxf {SCAD_FILE_NAME} -D z_scale=0 -D xy_scale=1 -D batch_export=true -D export_{file}=true")
     insert_text_into_dxf(Path(file + ".dxf"), f"{part_revsion}", 0, 0, 0, 3, colors.BLUE)
