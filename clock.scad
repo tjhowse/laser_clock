@@ -11,14 +11,16 @@ module gear_pair(shaft_offset, tooth_count_1, tooth_count_2, gear_thickness, bor
         number_of_teeth=tooth_count_1,
         gear_thickness = gear_thickness,
         rim_thickness = gear_thickness,
-        bore_diameter=bore_diameter);
+        bore_diameter=bore_diameter,
+        hub_thickness=gear_thickness);
 
-    translate([shaft_offset,0,0]) rotate([0,0,(360/tooth_count_2)/2])
+    translate([shaft_offset,0,0]) rotate([0,0,(360/tooth_count_2)])
     gear (circular_pitch=circular_pitch,
         number_of_teeth=tooth_count_2,
         gear_thickness = gear_thickness,
         rim_thickness = gear_thickness,
-        bore_diameter=bore_diameter);
+        bore_diameter=bore_diameter,
+        hub_thickness=gear_thickness);
 }
 
 wt = 4;
@@ -35,11 +37,13 @@ module frame() {
                 [0,0,0], // 0: Escapement wheel
                 [ForkWheelDistance,0,0], // 1: Escapement fork
                 [hanger_x,hanger_y,0], // 2: Hanger
+                [-winch_gear_axis_spacing*cos(winch_gear_angle),-winch_gear_axis_spacing*sin(winch_gear_angle),0], // 3: Winch
     ];
     joins = [
                 [1,2], // 0: Escapement wheel
                 [0,2], // 1: Escapement fork
                 [0,1], // 2: Hanger
+                [0,2], // 3: Winch
     ];
     // concat(holes, [0 ,0]);
     difference () {
@@ -47,7 +51,6 @@ module frame() {
             for (j = [0:len(holes)-1]) {
                 if (i != j) {
                     if (len(search(j, joins[i])) > 0) {
-                        echo("Joining ", i, " and ", j);
                         hull() {
                             translate(holes[j]) cylinder(r=wt + shaft_r, h=thickness, $fn=32);
                             translate(holes[i]) cylinder(r=wt + shaft_r, h=thickness, $fn=32);
@@ -183,6 +186,18 @@ module bead_chain_gear(z_scale=1, xy_scale=0) {
     translate([0,xy_scale*bead_chain_r*2,z_scale*(thickness/2+thickness)]) projection(cut=true) translate([0,0,-thickness/2]) bead_chain_gear_solid();
 }
 
+// winch_gear_axis_spacing = ForkWheelDistance;
+winch_gear_axis_spacing = 60;
+echo(winch_gear_axis_spacing);
+winch_gear_ratio = 3;
+winch_gear_small_tooth_count = 9;
+winch_gear_angle = 60;
+
+// These are the gears between the escapement wheel and the bead_chain_gear
+module winch_gears(z_scale=1, xy_scale=0) {
+    gear_pair(winch_gear_axis_spacing, winch_gear_small_tooth_count, winch_gear_small_tooth_count*winch_gear_ratio, thickness*2, 624_od);
+}
+
 z_scale=1;
 xy_scale=0;
 batch_export=false;
@@ -222,22 +237,26 @@ if (batch_export) {
     // bead_chain_gear(0,1);
     // bead_chain_gear(1,0);
     // bead_chain_gear_solid();
-    frame();
-    // render()
-    // {
-    //     rotate([0,0,180]){
-    //         scale([1,1,2]) union() {
-    //             escapement_fork();
-    //             translate([ForkWheelDistance,0,0]) rotate([0,0,90]) pendulum_mount();
-    //         }
-    //         scale([1,1,2]) escapement_wheel();
-    //         translate([ForkWheelDistance,0,z_scale*thickness]) rotate([0,0,90]) union() {
-    //             translate([0,0,z_scale*thickness]) pendulum_washers(z_scale, xy_scale);
-    //         }
-    //         translate([hanger_x, hanger_y,0]) hanger_washers(z_scale, xy_scale);
-    //         translate([0,0,-z_scale*thickness]) frame();
-    //         translate([0,0,z_scale*thickness*6]) frame();
-    //     }
-    //     translate([0,0,z_scale*thickness*2]) string_hub(z_scale, xy_scale);
-    // }
+    // frame();
+    // winch_gears();
+    render()
+    {
+        rotate([0,0,180]){
+            scale([1,1,2]) union() {
+                escapement_fork();
+                translate([ForkWheelDistance,0,0]) rotate([0,0,90]) pendulum_mount();
+            }
+            scale([1,1,2]) escapement_wheel();
+            translate([ForkWheelDistance,0,z_scale*thickness]) rotate([0,0,90]) union() {
+                translate([0,0,z_scale*thickness]) pendulum_washers(z_scale, xy_scale);
+            }
+            translate([hanger_x, hanger_y,0]) hanger_washers(z_scale, xy_scale);
+            translate([0,0,-z_scale*thickness]) frame();
+            translate([0,0,z_scale*thickness*6]) frame();
+        }
+        // translate([0,0,z_scale*thickness*2]) string_hub(z_scale, xy_scale);
+        // translate([0,0,z_scale*thickness*3.5]) bead_chain_gear_solid();
+        translate([0,0,z_scale*thickness*2]) rotate([0,0,winch_gear_angle]) winch_gears(z_scale, xy_scale);
+        rotate([0,0,winch_gear_angle]) translate([winch_gear_axis_spacing,0,z_scale*thickness*5.5]) bead_chain_gear_solid();
+    }
 }
