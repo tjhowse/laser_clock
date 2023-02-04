@@ -32,18 +32,26 @@ hanger_y = -ForkWheelDistance;
 // in place.
 module frame() {
     holes = [
-                [0,0,0], // Escapement wheel
-                [ForkWheelDistance,0,0], // Escapement fork
-                [hanger_x,hanger_y,0], // Hanger
+                [0,0,0], // 0: Escapement wheel
+                [ForkWheelDistance,0,0], // 1: Escapement fork
+                [hanger_x,hanger_y,0], // 2: Hanger
+    ];
+    joins = [
+                [1,2], // 0: Escapement wheel
+                [0,2], // 1: Escapement fork
+                [0,1], // 2: Hanger
     ];
     // concat(holes, [0 ,0]);
     difference () {
         for (i = [0:len(holes)-1]) {
             for (j = [0:len(holes)-1]) {
                 if (i != j) {
-                    hull() {
-                        translate(holes[j]) cylinder(r=wt + shaft_r, h=thickness, $fn=32);
-                        translate(holes[i]) cylinder(r=wt + shaft_r, h=thickness, $fn=32);
+                    if (len(search(j, joins[i])) > 0) {
+                        echo("Joining ", i, " and ", j);
+                        hull() {
+                            translate(holes[j]) cylinder(r=wt + shaft_r, h=thickness, $fn=32);
+                            translate(holes[i]) cylinder(r=wt + shaft_r, h=thickness, $fn=32);
+                        }
                     }
                 }
             }
@@ -114,7 +122,7 @@ module string_hub(z_scale=1, xy_scale=0) {
 
 // This is a little part that attaches to the pendulum arm and makes it
 // easier to mount an m8 threaded rod as a pendulum.
-module m8_pendulum_hanger() {
+module m8_pendulum_hanger(z_scale=1, xy_scale=0) {
     pend_shaft_r = 4;
     m8_nut_r = 12.77/2;
     total_x = pendulum_mount_arm_width+2*wt;
@@ -133,7 +141,6 @@ module m8_pendulum_hanger() {
 bead_chain_straight_pitch = 60.6/10;
 bead_r = 4.36/2;
 bead_cord_r = 1.61/2;
-bead_chain_hub_r = 30;
 
 module bead_chain_segment() {
     sphere(r=bead_r, $fn=16);
@@ -141,11 +148,39 @@ module bead_chain_segment() {
 }
 
 module bead_chain_ring() {
-    bead_n = 20;
+    bead_n = 30;
     bead_chain_r = bead_chain_straight_pitch/tan(360/bead_n);
     for (i = [0:360/bead_n:360]) {
         rotate([0,0,i]) translate([bead_chain_r,0,0]) rotate([0,0,(-360/bead_n)/2]) bead_chain_segment();
     }
+}
+bead_n = 30;
+bead_chain_r = bead_chain_straight_pitch/tan(360/bead_n);
+
+module bead_chain_gear_solid() {
+    // tooth_xy = bead_r*2;
+    // bead_n = 20;
+    // bead_chain_r = bead_chain_straight_pitch/tan(360/bead_n);
+    // for (i = [0:360/bead_n:360]) {
+    //     rotate([0,0,i+360/bead_n/2]) translate([bead_chain_r-tooth_xy/sqrt(2),0,0]) rotate([0,0,(-360/bead_n)/2]) union() {
+    //         rotate([0,0,-45]) cube([tooth_xy,tooth_xy,thickness],center=true);
+    //     }
+    // }
+    difference() {
+        translate([0,0,-thickness*3/2]) cylinder(r=bead_chain_r-bead_cord_r, h=thickness*3);
+        union() {
+            for (i = [0:360/bead_n:360]) {
+                rotate([0,0,i]) translate([bead_chain_r,0,0]) rotate([0,0,(-360/bead_n)/2]) bead_chain_segment();
+            }
+        }
+        translate([0,0,-50]) cylinder(r=624_od/2, h=100);
+    }
+}
+
+module bead_chain_gear(z_scale=1, xy_scale=0) {
+    translate([0,0,z_scale*(-thickness/2+thickness)]) projection(cut=true) bead_chain_gear_solid();
+    translate([xy_scale*bead_chain_r*2,0,z_scale*(-thickness/2)]) projection(cut=true) translate([0,0,thickness/2]) bead_chain_gear_solid();
+    translate([0,xy_scale*bead_chain_r*2,z_scale*(thickness/2+thickness)]) projection(cut=true) translate([0,0,-thickness/2]) bead_chain_gear_solid();
 }
 
 z_scale=1;
@@ -164,6 +199,7 @@ export_hanger_washers = false;
 export_frame = false;
 export_string_hub = false;
 export_m8_pendulum_hanger = false;
+export_bead_chain_gear = false;
 // PARTSMARKEREND
 
 if (batch_export) {
@@ -177,11 +213,16 @@ if (batch_export) {
     if (export_frame) projection() frame();
     if (export_string_hub) projection() string_hub(z_scale, xy_scale);
     if (export_m8_pendulum_hanger) projection() m8_pendulum_hanger(z_scale, xy_scale);
+    if (export_bead_chain_gear) projection() bead_chain_gear(z_scale, xy_scale);
 
 } else {
                 // projection()alignment_tool(z_scale, xy_scale);
     // projection() m8_pendulum_hanger();
-    bead_chain_ring();
+// translate([0,0,thickness])    bead_chain_ring();
+    // bead_chain_gear(0,1);
+    // bead_chain_gear(1,0);
+    // bead_chain_gear_solid();
+    frame();
     // render()
     // {
     //     rotate([0,0,180]){
