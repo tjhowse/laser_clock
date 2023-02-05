@@ -187,7 +187,8 @@ module bead_chain_gear(z_scale=1, xy_scale=0) {
 }
 
 // winch_gear_axis_spacing = ForkWheelDistance;
-winch_gear_axis_spacing = 60;
+ // The 2mm is to give some clearance between the tips of the escapement wheel and the bearings
+winch_gear_axis_spacing = EwTipRadius+624_od/2+2;
 echo(winch_gear_axis_spacing);
 winch_gear_ratio = 3;
 winch_gear_small_tooth_count = 9;
@@ -252,7 +253,7 @@ if (batch_export) {
             }
             translate([hanger_x, hanger_y,0]) hanger_washers(z_scale, xy_scale);
             translate([0,0,-z_scale*thickness]) frame();
-            translate([0,0,z_scale*thickness*6]) frame();
+            translate([0,0,z_scale*thickness*7]) frame();
         }
         // translate([0,0,z_scale*thickness*2]) string_hub(z_scale, xy_scale);
         // translate([0,0,z_scale*thickness*3.5]) bead_chain_gear_solid();
