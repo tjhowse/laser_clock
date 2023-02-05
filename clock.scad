@@ -255,8 +255,6 @@ if (batch_export) {
             translate([0,0,-z_scale*thickness]) frame();
             translate([0,0,z_scale*thickness*7]) frame();
         }
-        // translate([0,0,z_scale*thickness*2]) string_hub(z_scale, xy_scale);
-        // translate([0,0,z_scale*thickness*3.5]) bead_chain_gear_solid();
         translate([0,0,z_scale*thickness*2]) rotate([0,0,winch_gear_angle]) winch_gears(z_scale, xy_scale);
         rotate([0,0,winch_gear_angle]) translate([winch_gear_axis_spacing,0,z_scale*thickness*5.5]) bead_chain_gear_solid();
     }
