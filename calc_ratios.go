@@ -35,6 +35,7 @@ func calc_ratios(a int, b int) {
 						continue
 					}
 					if desired_ratio == (float64(i) / float64(j) * float64(k) / float64(l)) {
+						// Don't add it if it's a duplicate of an existing ratio in a different order
 						if _, ok := results[ratio{k, l, i, j}]; !ok {
 							results[ratio{i, j, k, l}] = true
 						}
@@ -52,7 +53,7 @@ func calc_ratios(a int, b int) {
 	})
 	fmt.Printf("Found %d results for a %d:%d tooth ratio\n", len(sortme), a, b)
 	for _, r := range sortme {
-		fmt.Printf("%d:%d %d:%d\n", r.a, r.b, r.c, r.d)
+		fmt.Printf("%d,%d,%d,%d\n", r.a, r.b, r.c, r.d)
 	}
 }
 

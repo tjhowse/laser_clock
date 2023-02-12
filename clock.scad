@@ -166,7 +166,17 @@ module bead_chain_gear_key(z_scale=1, xy_scale=0) {
 // sec_to_min = [9, 60, 9, 81];
 // sec_to_min = [10, 75, 10, 80]; // Viable.
 // sec_to_min = [10, 75, 11, 88]; // Viable.
-sec_to_min = [9,72,10,75];
+// sec_to_min = [10,75,10,80];
+// sec_to_min = [9,66,11,90];
+// sec_to_min = [10,75,11,88];
+
+sec_to_min = [12,90,12,96]; // #1
+// sec_to_min = [11,80,12,99];
+// sec_to_min = [11,88,12,90];
+// sec_to_min = [10,78,13,100];
+// sec_to_min = [10,72,12,100];
+// sec_to_min = [10,75,12,96];
+
 
 // The 2mm is to give some clearance between the tips of the escapement wheel and the bearings
 // winch_gear_axis_spacing = EwTipRadius+624_od/2+2;
