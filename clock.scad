@@ -204,7 +204,7 @@ xy_scale=0;
 batch_export=false;
 laser_kerf = 0.3;
 
-part_revision_number = 5;
+part_revision_number = 6;
 // These are load-bearing comments. The make script awks this file for
 // lines between these markers to determine what it needs to render to a file.
 // PARTSMARKERSTART
@@ -253,14 +253,14 @@ if (batch_export) {
         rotate([0,0,180]){
             scale([1,1,2]) union() {
                 escapement_fork();
-                translate([ForkWheelDistance,0,0]) rotate([0,0,90]) pendulum_mount();
+                translate([ForkWheelDistance,0,0]) rotate([0,0,-30]) pendulum_mount();
             }
             scale([1,1,2]) escapement_wheel();
             translate([0,0,-z_scale*thickness]) frame();
-            translate([0,0,z_scale*thickness*9]) frame();
+            translate([0,0,z_scale*thickness*7]) frame();
         }
-        translate([0,0,z_scale*thickness*2]) rotate([0,0,winch_gear_angle]) winch_gears(z_scale, xy_scale);
-        translate([-ForkWheelDistance,0,z_scale*thickness*7]) rotate([0,0,minute_gear_angle]) minute_gears(z_scale, xy_scale);
-        rotate([0,0,winch_gear_angle]) translate([winch_gear_axis_spacing,0,z_scale*thickness*5.5]) bead_chain_gear_solid(1);
+        translate([0,0,z_scale*thickness*2.5]) rotate([0,0,winch_gear_angle]) winch_gears(z_scale, xy_scale);
+        translate([-ForkWheelDistance,0,z_scale*thickness*5]) rotate([0,0,minute_gear_angle]) minute_gears(z_scale, xy_scale);
+        rotate([0,0,winch_gear_angle]) translate([winch_gear_axis_spacing,0,z_scale*thickness]) bead_chain_gear_solid(1);
     }
 }
