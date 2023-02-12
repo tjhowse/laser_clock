@@ -87,9 +87,6 @@ module pendulum_mount() {
     }
 }
 
-string_hub_r = 30;
-string_hub_r_lip = 2;
-
 module tjring(ir, or, h) {
     difference() {
         cylinder(r=or, h=h, $fn=32);
@@ -131,7 +128,7 @@ module bead_chain_ring() {
         rotate([0,0,i]) translate([bead_chain_r,0,0]) rotate([0,0,(-360/bead_n)/2]) bead_chain_segment();
     }
 }
-bead_n = 20;
+bead_n = 16;
 bead_chain_r = bead_chain_straight_pitch/tan(360/bead_n);
 
 module bead_chain_gear_solid(simple=0) {
@@ -248,7 +245,10 @@ if (batch_export) {
     // bead_chain_gear(0, 1);
     // frame();
     // winch_gears();
-    // render()
+
+    // projection() minute_gears(z_scale, xy_scale);
+
+    render()
     {
         rotate([0,0,180]){
             scale([1,1,2]) union() {
