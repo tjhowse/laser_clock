@@ -162,16 +162,34 @@ module bead_chain_gear_key(z_scale=1, xy_scale=0) {
     rotate([-90,0,0]) cube([(bead_chain_r-624_od/2)/3, thickness, thickness*3]);
 }
 
- // The 2mm is to give some clearance between the tips of the escapement wheel and the bearings
+// Use calc_ratios.go to generate a nice gear chain.
+// sec_to_min = [9, 60, 9, 81];
+// sec_to_min = [10, 75, 10, 80]; // Viable.
+// sec_to_min = [10, 75, 11, 88]; // Viable.
+sec_to_min = [9,72,10,75];
+
+// The 2mm is to give some clearance between the tips of the escapement wheel and the bearings
 // winch_gear_axis_spacing = EwTipRadius+624_od/2+2;
 winch_gear_axis_spacing = ForkWheelDistance;
-winch_gear_ratio = 4;
-winch_gear_small_tooth_count = 9;
+// winch_gear_ratio = 7;
+winch_gear_small_tooth_count = sec_to_min[0];
+winch_gear_big_tooth_count = sec_to_min[1];
 winch_gear_angle = 120;
 
 // These are the gears between the escapement wheel and the bead_chain_gear
 module winch_gears(z_scale=1, xy_scale=0) {
-    gear_pair(winch_gear_axis_spacing, winch_gear_small_tooth_count, winch_gear_small_tooth_count*winch_gear_ratio, thickness*2, 624_od);
+    gear_pair(winch_gear_axis_spacing, winch_gear_small_tooth_count, winch_gear_big_tooth_count, thickness*2, 624_od);
+}
+
+minute_gear_axis_spacing = ForkWheelDistance;
+// minute_gear_ratio = 10;
+minute_gear_small_tooth_count = sec_to_min[2];
+minute_gear_big_tooth_count = sec_to_min[3];
+minute_gear_angle = 60;
+
+// These are the gears between the winch gear and the minute wheel
+module minute_gears(z_scale=1, xy_scale=0) {
+    gear_pair(minute_gear_axis_spacing, minute_gear_big_tooth_count, minute_gear_small_tooth_count, thickness*2, 624_od);
 }
 
 z_scale=1;
@@ -220,7 +238,7 @@ if (batch_export) {
     // bead_chain_gear(0, 1);
     // frame();
     // winch_gears();
-    render()
+    // render()
     {
         rotate([0,0,180]){
             scale([1,1,2]) union() {
@@ -229,9 +247,10 @@ if (batch_export) {
             }
             scale([1,1,2]) escapement_wheel();
             translate([0,0,-z_scale*thickness]) frame();
-            translate([0,0,z_scale*thickness*7]) frame();
+            translate([0,0,z_scale*thickness*9]) frame();
         }
         translate([0,0,z_scale*thickness*2]) rotate([0,0,winch_gear_angle]) winch_gears(z_scale, xy_scale);
+        translate([-ForkWheelDistance,0,z_scale*thickness*7]) rotate([0,0,minute_gear_angle]) minute_gears(z_scale, xy_scale);
         rotate([0,0,winch_gear_angle]) translate([winch_gear_axis_spacing,0,z_scale*thickness*5.5]) bead_chain_gear_solid(1);
     }
 }

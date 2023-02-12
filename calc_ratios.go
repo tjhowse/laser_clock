@@ -25,7 +25,7 @@ func (r *ratio) diff() int {
 
 func calc_ratios(a int, b int) {
 	results := make(map[ratio]bool)
-	resired_ratio := float64(a) / float64(b)
+	desired_ratio := float64(a) / float64(b)
 	for i := MIN_TOOTH; i <= MAX_TOOTH; i++ {
 		for j := MIN_TOOTH; j <= MAX_TOOTH; j++ {
 			for k := MIN_TOOTH; k <= MAX_TOOTH; k++ {
@@ -34,7 +34,7 @@ func calc_ratios(a int, b int) {
 					if float64(i)/float64(j)-float64(i/j) == 0 || float64(k)/float64(l)-float64(k/l) == 0 {
 						continue
 					}
-					if resired_ratio == (float64(i) / float64(j) * float64(k) / float64(l)) {
+					if desired_ratio == (float64(i) / float64(j) * float64(k) / float64(l)) {
 						if _, ok := results[ratio{k, l, i, j}]; !ok {
 							results[ratio{i, j, k, l}] = true
 						}
