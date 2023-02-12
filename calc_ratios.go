@@ -57,8 +57,8 @@ func calc_ratios(a int, b int) {
 }
 
 func main() {
-	a := flag.Int("a", 1, "First gear tooth count")
-	b := flag.Int("b", 60, "First gear tooth count")
+	a := flag.Int("a", 1, "Smaller part of the ratio")
+	b := flag.Int("b", 60, "Larger part of the ratio")
 	flag.Parse()
 	calc_ratios(*a, *b)
 }

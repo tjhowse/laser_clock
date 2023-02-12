@@ -13,6 +13,8 @@ module gear_pair(shaft_offset, tooth_count_1, tooth_count_2, gear_thickness, bor
         rim_thickness = gear_thickness,
         bore_diameter=bore_diameter,
         hub_thickness=gear_thickness);
+
+    // This rotation malarkey is to make the gears mesh properly in the preview.
     translate([shaft_offset,0,0]) rotate([0,0,(360/(2*tooth_count_2))*(tooth_count_2%2-1)])
     gear (circular_pitch=circular_pitch,
         number_of_teeth=tooth_count_2,
