@@ -13,8 +13,8 @@ module gear_pair(shaft_offset, tooth_count_1, tooth_count_2, gear_thickness, bor
         rim_thickness = gear_thickness,
         bore_diameter=bore_diameter,
         hub_thickness=gear_thickness);
-
-    translate([shaft_offset,0,0]) rotate([0,0,(360/tooth_count_2)])
+    // echo((360/tooth_count_2));
+    translate([shaft_offset,0,0]) rotate([0,0,(360/(2*tooth_count_2))*(tooth_count_2%2-1)])
     gear (circular_pitch=circular_pitch,
         number_of_teeth=tooth_count_2,
         gear_thickness = gear_thickness,
@@ -157,20 +157,24 @@ module bead_chain_ring() {
         rotate([0,0,i]) translate([bead_chain_r,0,0]) rotate([0,0,(-360/bead_n)/2]) bead_chain_segment();
     }
 }
-bead_n = 40;
+bead_n = 20;
 bead_chain_r = bead_chain_straight_pitch/tan(360/bead_n);
 
-module bead_chain_gear_solid() {
-    difference() {
+module bead_chain_gear_solid(simple=0) {
+    if (simple) {
         translate([0,0,-thickness*3/2]) cylinder(r=bead_chain_r-bead_cord_r, h=thickness*3);
-        union() {
-            for (i = [0:360/bead_n:360]) {
-                rotate([0,0,i]) translate([bead_chain_r,0,0]) rotate([0,0,(-360/bead_n)/2]) bead_chain_segment();
+    } else {
+        difference() {
+            translate([0,0,-thickness*3/2]) cylinder(r=bead_chain_r-bead_cord_r, h=thickness*3);
+            union() {
+                for (i = [0:360/bead_n:360]) {
+                    rotate([0,0,i]) translate([bead_chain_r,0,0]) rotate([0,0,(-360/bead_n)/2]) bead_chain_segment();
+                }
             }
+            translate([0,0,-50]) cylinder(r=624_od/2, h=100);
+            // Alignment key
+            translate([624_od/2+(bead_chain_r-624_od/2)/3,-(thickness-laser_kerf)/2,-(thickness*3)/2]) cube([(bead_chain_r-624_od/2)/3, thickness-laser_kerf, thickness*3]);
         }
-        translate([0,0,-50]) cylinder(r=624_od/2, h=100);
-        // Alignment key
-        translate([624_od/2+(bead_chain_r-624_od/2)/3,-(thickness-laser_kerf)/2,-(thickness*3)/2]) cube([(bead_chain_r-624_od/2)/3, thickness-laser_kerf, thickness*3]);
     }
 }
 
@@ -188,7 +192,7 @@ module bead_chain_gear_key(z_scale=1, xy_scale=0) {
 // winch_gear_axis_spacing = EwTipRadius+624_od/2+2;
 winch_gear_axis_spacing = ForkWheelDistance;
 echo(winch_gear_axis_spacing);
-winch_gear_ratio = 3;
+winch_gear_ratio = 4;
 winch_gear_small_tooth_count = 9;
 winch_gear_angle = 120;
 
@@ -202,7 +206,7 @@ xy_scale=0;
 batch_export=false;
 laser_kerf = 0.3;
 
-part_revision_number = 4;
+part_revision_number = 5;
 // These are load-bearing comments. The make script awks this file for
 // lines between these markers to determine what it needs to render to a file.
 // PARTSMARKERSTART
@@ -211,7 +215,6 @@ export_escapement_wheel = false;
 export_pendulum_washers = false;
 export_hanger_washers = false;
 export_frame = false;
-export_string_hub = false;
 export_m8_pendulum_hanger = false;
 export_bead_chain_gear = false;
 export_bead_chain_gear_key = false;
@@ -224,10 +227,7 @@ if (batch_export) {
                 translate([ForkWheelDistance,0,0]) rotate([0,0,90]) pendulum_mount();
             }
     if (export_escapement_wheel) projection() escapement_wheel();
-    if (export_pendulum_washers) projection() pendulum_washers(z_scale, xy_scale);
-    if (export_hanger_washers) projection() hanger_washers(z_scale, xy_scale);
     if (export_frame) projection() frame();
-    if (export_string_hub) projection() string_hub(z_scale, xy_scale);
     if (export_m8_pendulum_hanger) projection() m8_pendulum_hanger(z_scale, xy_scale);
     if (export_bead_chain_gear) bead_chain_gear(z_scale, xy_scale);
     if (export_bead_chain_gear_key) projection() bead_chain_gear_key(z_scale, xy_scale);
@@ -235,7 +235,12 @@ if (batch_export) {
 
 } else {
                 // projection()alignment_tool(z_scale, xy_scale);
-    projection() m8_pendulum_hanger();
+    // projection() m8_pendulum_hanger();
+
+    // bead_chain_gear(0, 1);
+    // translate([-2,-4,0]) projection() bead_chain_gear_key(0, 1);
+
+
 // translate([0,0,thickness])    bead_chain_ring();
     // bead_chain_gear(0,1);
     // bead_chain_gear(1,0);
@@ -244,22 +249,18 @@ if (batch_export) {
     // bead_chain_gear(0, 1);
     // frame();
     // winch_gears();
-    // render()
-    // {
-    //     rotate([0,0,180]){
-    //         scale([1,1,2]) union() {
-    //             escapement_fork();
-    //             translate([ForkWheelDistance,0,0]) rotate([0,0,90]) pendulum_mount();
-    //         }
-    //         scale([1,1,2]) escapement_wheel();
-    //         translate([ForkWheelDistance,0,z_scale*thickness]) rotate([0,0,90]) union() {
-    //             translate([0,0,z_scale*thickness]) pendulum_washers(z_scale, xy_scale);
-    //         }
-    //         translate([hanger_x, hanger_y,0]) hanger_washers(z_scale, xy_scale);
-    //         translate([0,0,-z_scale*thickness]) frame();
-    //         translate([0,0,z_scale*thickness*7]) frame();
-    //     }
-    //     translate([0,0,z_scale*thickness*2]) rotate([0,0,winch_gear_angle]) winch_gears(z_scale, xy_scale);
-    //     rotate([0,0,winch_gear_angle]) translate([winch_gear_axis_spacing,0,z_scale*thickness*5.5]) bead_chain_gear_solid();
-    // }
+    render()
+    {
+        rotate([0,0,180]){
+            scale([1,1,2]) union() {
+                escapement_fork();
+                translate([ForkWheelDistance,0,0]) rotate([0,0,90]) pendulum_mount();
+            }
+            scale([1,1,2]) escapement_wheel();
+            translate([0,0,-z_scale*thickness]) frame();
+            translate([0,0,z_scale*thickness*7]) frame();
+        }
+        translate([0,0,z_scale*thickness*2]) rotate([0,0,winch_gear_angle]) winch_gears(z_scale, xy_scale);
+        rotate([0,0,winch_gear_angle]) translate([winch_gear_axis_spacing,0,z_scale*thickness*5.5]) bead_chain_gear_solid(1);
+    }
 }
