@@ -86,22 +86,6 @@ module pendulum_mount() {
     }
 }
 
-// These make sure the pendulum/escapement fork stack add up to the same
-// thickness as the escapement wheel/string hub stack.
-module pendulum_washers(z_scale=1, xy_scale=0) {
-    translate([0,0,0]) tjring(ForkHubInnerRadius, ForkHubOuterRadius, thickness);
-    translate([xy_scale*ForkHubOuterRadius*2,0,z_scale*thickness]) tjring(ForkHubInnerRadius, ForkHubOuterRadius, thickness);
-    translate([0,xy_scale*ForkHubOuterRadius*2,z_scale*thickness]) tjring(ForkHubInnerRadius, ForkHubOuterRadius, thickness);
-    translate([xy_scale*ForkHubOuterRadius,xy_scale*ForkHubOuterRadius*sqrt(3),z_scale*thickness*2]) tjring(ForkHubInnerRadius, ForkHubOuterRadius, thickness);
-    translate([xy_scale*ForkHubOuterRadius,xy_scale*ForkHubOuterRadius*sqrt(3),z_scale*thickness*3]) tjring(ForkHubInnerRadius, ForkHubOuterRadius, thickness);
-}
-
-module hanger_washers(z_scale=1, xy_scale=0) {
-    for (i = [0:6]) {
-        translate([i*(624_id/2+wt)*2*xy_scale,0,i*z_scale*thickness]) tjring(624_id/2,624_id/2+wt,thickness);
-    }
-}
-
 string_hub_r = 30;
 string_hub_r_lip = 2;
 
@@ -110,17 +94,6 @@ module tjring(ir, or, h) {
         cylinder(r=or, h=h, $fn=32);
         cylinder(r=ir, h=h, $fn=32);
     }
-}
-
-// This is glued to the back of the escapement wheel and is used to wind up the
-// string and bob for providing torque to the escapement wheel. call with (0,1) to
-// see it exploded for cutting, (1,0) to see it stacked up for modelling.
-module string_hub(z_scale=1, xy_scale=0) {
-    big = string_hub_r+string_hub_r_lip;
-    translate([0,0,0]) tjring(624_od/2, big, thickness);
-    translate([xy_scale*big*2,0,z_scale*thickness]) tjring(624_od/2, string_hub_r, thickness);
-    translate([0,xy_scale*big*2,z_scale*thickness*2]) tjring(624_od/2, string_hub_r, thickness);
-    translate([xy_scale*big*2,xy_scale*big*2,z_scale*thickness*3]) tjring(624_od/2, big, thickness);
 }
 
 // This is a little part that attaches to the pendulum arm and makes it
@@ -212,8 +185,6 @@ part_revision_number = 5;
 // PARTSMARKERSTART
 export_escapement_fork = false;
 export_escapement_wheel = false;
-export_pendulum_washers = false;
-export_hanger_washers = false;
 export_frame = false;
 export_m8_pendulum_hanger = false;
 export_bead_chain_gear = false;
