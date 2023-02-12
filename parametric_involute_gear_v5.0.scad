@@ -41,11 +41,8 @@ module bevel_gear_pair (
 		(outside_pitch_radius2 * cos (axis_angle) + outside_pitch_radius1) / tan (axis_angle);
 	cone_distance = sqrt (pow (pitch_apex1, 2) + pow (outside_pitch_radius1, 2));
 	pitch_apex2 = sqrt (pow (cone_distance, 2) - pow (outside_pitch_radius2, 2));
-	echo ("cone_distance", cone_distance);
 	pitch_angle1 = asin (outside_pitch_radius1 / cone_distance);
 	pitch_angle2 = asin (outside_pitch_radius2 / cone_distance);
-	echo ("pitch_angle1, pitch_angle2", pitch_angle1, pitch_angle2);
-	echo ("pitch_angle1 + pitch_angle2", pitch_angle1 + pitch_angle2);
 
 	rotate([0,0,90])
 	translate ([0,0,pitch_apex1+20])

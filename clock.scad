@@ -13,7 +13,6 @@ module gear_pair(shaft_offset, tooth_count_1, tooth_count_2, gear_thickness, bor
         rim_thickness = gear_thickness,
         bore_diameter=bore_diameter,
         hub_thickness=gear_thickness);
-    // echo((360/tooth_count_2));
     translate([shaft_offset,0,0]) rotate([0,0,(360/(2*tooth_count_2))*(tooth_count_2%2-1)])
     gear (circular_pitch=circular_pitch,
         number_of_teeth=tooth_count_2,
@@ -164,7 +163,6 @@ module bead_chain_gear_key(z_scale=1, xy_scale=0) {
  // The 2mm is to give some clearance between the tips of the escapement wheel and the bearings
 // winch_gear_axis_spacing = EwTipRadius+624_od/2+2;
 winch_gear_axis_spacing = ForkWheelDistance;
-echo(winch_gear_axis_spacing);
 winch_gear_ratio = 4;
 winch_gear_small_tooth_count = 9;
 winch_gear_angle = 120;
