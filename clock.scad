@@ -71,7 +71,7 @@ module frame() {
 }
 
 pendulum_mount_arm_length = 60;
-pendulum_mount_arm_width = 6;
+pendulum_mount_arm_width = 8;
 624_od = 13;
 624_id = 4;
 

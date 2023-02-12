@@ -123,7 +123,7 @@ module dbfork(
         The Entry pallet. The fork's arm goes first.
         */
         rotate( 90 + ForkEntryArmAngle, [ 0, 0, 1 ] )
-        translate( [ fHubInnerRadius, -ForkArmWidth / 2, 0 ] )
+        translate( [ fHubInnerRadius, -(ForkArmWidth+ForkArmExtraWidth) / 2, 0 ] )
         cube( [ ForkArmLength, ForkArmWidth, fThickness ] );
         /*
         The pallet itself.
@@ -215,10 +215,12 @@ CnDn = sqrt( pow( ForkOuterRadius, 2 ) +
     2 * ForkOuterRadius * ForkInnerRadius *
     cos( ForkLiftAngle ) );
 DnCnF = asin( (ForkInnerRadius / CnDn ) * sin( ForkLiftAngle ) );
-ForkArmWidth = ForkPalletLinearWidth;
+// This makes the fork arms thicker so they flex less.
+ForkArmExtraWidth = 3;
+ForkArmWidth = ForkPalletLinearWidth+ForkArmExtraWidth;
 // ForkHubOuterRadius = 5 * BSU;
 // ForkHubInnerRadius = 0.5 * ForkHubOuterRadius;
-ForkHubOuterRadius = EwHubOuterRadius;
+ForkHubOuterRadius = EwHubOuterRadius+ForkArmExtraWidth;
 ForkHubInnerRadius = EwHubInnerRadius;
 ForkArmLength = ForkOuterRadius - ForkHubInnerRadius;
 
