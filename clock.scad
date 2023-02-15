@@ -72,6 +72,7 @@ module frame() {
 
 pendulum_mount_arm_length = 60;
 pendulum_mount_arm_width = 8;
+pendulum_mount_angle = -30;
 624_od = 13;
 624_id = 4;
 
@@ -215,12 +216,13 @@ export_m8_pendulum_hanger = false;
 export_bead_chain_gear = false;
 export_bead_chain_gear_key = false;
 export_winch_gears = false;
+export_minute_gears = false;
 // PARTSMARKEREND
 
 if (batch_export) {
     if (export_escapement_fork) projection() union() {
                 escapement_fork();
-                translate([ForkWheelDistance,0,0]) rotate([0,0,90]) pendulum_mount();
+                translate([ForkWheelDistance,0,0]) rotate([0,0,pendulum_mount_angle]) pendulum_mount();
             }
     if (export_escapement_wheel) projection() escapement_wheel();
     if (export_frame) projection() frame();
@@ -228,6 +230,7 @@ if (batch_export) {
     if (export_bead_chain_gear) bead_chain_gear(z_scale, xy_scale);
     if (export_bead_chain_gear_key) projection() bead_chain_gear_key(z_scale, xy_scale);
     if (export_winch_gears) projection() winch_gears(z_scale, xy_scale);
+    if (export_minute_gears) projection() minute_gears(z_scale, xy_scale);
 
 } else {
                 // projection()alignment_tool(z_scale, xy_scale);
@@ -253,7 +256,7 @@ if (batch_export) {
         rotate([0,0,180]){
             scale([1,1,2]) union() {
                 escapement_fork();
-                translate([ForkWheelDistance,0,0]) rotate([0,0,-30]) pendulum_mount();
+                translate([ForkWheelDistance,0,0]) rotate([0,0,pendulum_mount_angle]) pendulum_mount();
             }
             scale([1,1,2]) escapement_wheel();
             translate([0,0,-z_scale*thickness]) frame();
