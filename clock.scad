@@ -1,9 +1,11 @@
+
+624_pilot_hole_r = 1.5;
 include <escapement.scad>
 
 // https://www.thingiverse.com/thing:3575
 use <parametric_involute_gear_v5.0.scad>
 
-module gear_pair(shaft_offset, tooth_count_1, tooth_count_2, gear_thickness, bore_diameter) {
+module gear_pair(shaft_offset, tooth_count_1, tooth_count_2, gear_thickness, bore_diameter_1, bore_diameter_2) {
 
     circular_pitch = shaft_offset*2 / (tooth_count_1 + tooth_count_2) * 180;
 
@@ -11,7 +13,7 @@ module gear_pair(shaft_offset, tooth_count_1, tooth_count_2, gear_thickness, bor
         number_of_teeth=tooth_count_1,
         gear_thickness = gear_thickness,
         rim_thickness = gear_thickness,
-        bore_diameter=bore_diameter,
+        bore_diameter=bore_diameter_1,
         hub_thickness=gear_thickness);
 
     // This rotation malarkey is to make the gears mesh properly in the preview.
@@ -20,13 +22,14 @@ module gear_pair(shaft_offset, tooth_count_1, tooth_count_2, gear_thickness, bor
         number_of_teeth=tooth_count_2,
         gear_thickness = gear_thickness,
         rim_thickness = gear_thickness,
-        bore_diameter=bore_diameter,
+        bore_diameter=bore_diameter_2,
         hub_thickness=gear_thickness);
 }
 
 wt = 4;
 shaft_r = 2;
 thickness = 2.87;
+laser_kerf = 0.3;
 
 hanger_x = ForkWheelDistance/2;
 hanger_y = -(ForkWheelDistance/2)*tan(60);
@@ -73,6 +76,8 @@ module frame() {
 pendulum_mount_arm_length = 60;
 pendulum_mount_arm_width = 8;
 pendulum_mount_angle = -30;
+// Offset the arm so the m8 threaded rod can hang directly below the pivot point.
+pendulum_mount_arm_offset = 8;
 624_od = 13;
 624_id = 4;
 
@@ -82,7 +87,7 @@ module pendulum_mount() {
     difference() {
         union() {
             cylinder(r=ForkHubOuterRadius, h=thickness, $fn=32);
-            translate([0,-pendulum_mount_arm_width/2,0]) cube([pendulum_mount_arm_length+ForkHubOuterRadius, pendulum_mount_arm_width, thickness]);
+            translate([0,-pendulum_mount_arm_width/2+pendulum_mount_arm_offset,0]) cube([pendulum_mount_arm_length+ForkHubOuterRadius, pendulum_mount_arm_width, thickness]);
         }
         cylinder(r=ForkHubInnerRadius, h=thickness, $fn=32);
     }
@@ -95,16 +100,18 @@ module tjring(ir, or, h) {
     }
 }
 
+pend_shaft_r = (7.83/2)-0.1; // Undersize the hole so the pendulum rod can self-tap
+pendulum_hanger_total_x = (pend_shaft_r+wt)*2;
+pendulum_arm_x = 5.9; // Measured off an actual arm, includes laser kerf etc.
+pendulum_arm_y = pendulum_mount_arm_width-laser_kerf*2; // Measured off an actual arm, includes laser kerf etc.
+
 // This is a little part that attaches to the pendulum arm and makes it
 // easier to mount an m8 threaded rod as a pendulum.
 module m8_pendulum_hanger(z_scale=1, xy_scale=0) {
-    pend_shaft_r = (7.83/2)-0.1; // Undersize the hole so the pendulum rod can self-tap
-    total_x = pendulum_mount_arm_width+2*wt;
-    pendulum_arm_xy = 5.9; // Measured off an actual arm, includes laser kerf etc.
     difference() {
-        cube([total_x, 3*wt+pend_shaft_r+pendulum_arm_xy, thickness]);
-        translate([wt+laser_kerf,wt,0]) cube([pendulum_mount_arm_width-laser_kerf*2, pendulum_arm_xy, 100]);
-        translate([total_x/2, wt+pendulum_arm_xy+pend_shaft_r, 0]) union() {
+        cube([pendulum_hanger_total_x, 3*wt+pend_shaft_r+pendulum_mount_arm_width-laser_kerf*2, thickness]);
+        translate([(pendulum_hanger_total_x-pendulum_arm_x)/2,wt,0]) cube([pendulum_arm_x,pendulum_arm_y, 100]);
+        translate([pendulum_hanger_total_x/2, wt+pendulum_mount_arm_width-laser_kerf*2+pend_shaft_r, 0]) union() {
             cylinder(r=pend_shaft_r, h=100, $fn=16);
         }
     }
@@ -143,7 +150,7 @@ module bead_chain_gear_solid(simple=0) {
                     rotate([0,0,i]) translate([bead_chain_r,0,0]) rotate([0,0,(-360/bead_n)/2]) bead_chain_segment();
                 }
             }
-            translate([0,0,-50]) cylinder(r=624_od/2, h=100);
+            translate([0,0,-50]) cylinder(r=624_pilot_hole_r/2, h=100);
             // Alignment key
             translate([624_od/2+(bead_chain_r-624_od/2)/3,-(thickness-laser_kerf)/2,-(thickness*3)/2]) cube([(bead_chain_r-624_od/2)/3, thickness-laser_kerf, thickness*3]);
         }
@@ -184,9 +191,10 @@ winch_gear_small_tooth_count = sec_to_min[0];
 winch_gear_big_tooth_count = sec_to_min[1];
 winch_gear_angle = 120;
 
+
 // These are the gears between the escapement wheel and the bead_chain_gear
 module winch_gears(z_scale=1, xy_scale=0) {
-    gear_pair(winch_gear_axis_spacing, winch_gear_small_tooth_count, winch_gear_big_tooth_count, thickness*2, 624_od);
+    gear_pair(winch_gear_axis_spacing, winch_gear_small_tooth_count, winch_gear_big_tooth_count, thickness*2, 624_od, 624_pilot_hole_r);
 }
 
 minute_gear_axis_spacing = ForkWheelDistance;
@@ -197,15 +205,14 @@ minute_gear_angle = 60;
 
 // These are the gears between the winch gear and the minute wheel
 module minute_gears(z_scale=1, xy_scale=0) {
-    gear_pair(minute_gear_axis_spacing, minute_gear_big_tooth_count, minute_gear_small_tooth_count, thickness*2, 624_od);
+    gear_pair(minute_gear_axis_spacing, minute_gear_big_tooth_count, minute_gear_small_tooth_count, thickness*2, 624_pilot_hole_r, 624_od);
 }
 
 z_scale=1;
 xy_scale=0;
 batch_export=false;
-laser_kerf = 0.3;
 
-part_revision_number = 6;
+part_revision_number = 7;
 // These are load-bearing comments. The make script awks this file for
 // lines between these markers to determine what it needs to render to a file.
 // PARTSMARKERSTART
@@ -250,20 +257,22 @@ if (batch_export) {
     // winch_gears();
 
     // projection() minute_gears(z_scale, xy_scale);
-
-    render()
-    {
-        rotate([0,0,180]){
+    // #translate([0,0,-thickness]) pendulum_mount();
+    // pendulum_mount();
+    // translate([30,wt+pendulum_arm_y+pendulum_mount_arm_offset/2,-pendulum_hanger_total_x/2]) rotate([90,0,0]) rotate([90,0,90]) m8_pendulum_hanger();
+    // render()
+    // {
+    //     rotate([0,0,180]){
             scale([1,1,2]) union() {
                 escapement_fork();
                 translate([ForkWheelDistance,0,0]) rotate([0,0,pendulum_mount_angle]) pendulum_mount();
             }
-            scale([1,1,2]) escapement_wheel();
-            translate([0,0,-z_scale*thickness]) frame();
-            translate([0,0,z_scale*thickness*7]) frame();
-        }
-        translate([0,0,z_scale*thickness*2.5]) rotate([0,0,winch_gear_angle]) winch_gears(z_scale, xy_scale);
-        translate([-ForkWheelDistance,0,z_scale*thickness*5]) rotate([0,0,minute_gear_angle]) minute_gears(z_scale, xy_scale);
-        rotate([0,0,winch_gear_angle]) translate([winch_gear_axis_spacing,0,z_scale*thickness]) bead_chain_gear_solid(1);
-    }
+    //         scale([1,1,2]) escapement_wheel();
+    //         translate([0,0,-z_scale*thickness]) frame();
+    //         translate([0,0,z_scale*thickness*7]) frame();
+    //     }
+    //     translate([0,0,z_scale*thickness*2.5]) rotate([0,0,winch_gear_angle]) winch_gears(z_scale, xy_scale);
+    //     translate([-ForkWheelDistance,0,z_scale*thickness*5]) rotate([0,0,minute_gear_angle]) minute_gears(z_scale, xy_scale);
+    //     rotate([0,0,winch_gear_angle]) translate([winch_gear_axis_spacing,0,z_scale*thickness]) bead_chain_gear_solid(1);
+    // }
 }

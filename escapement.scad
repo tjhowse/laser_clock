@@ -221,7 +221,8 @@ ForkArmWidth = ForkPalletLinearWidth+ForkArmExtraWidth;
 // ForkHubOuterRadius = 5 * BSU;
 // ForkHubInnerRadius = 0.5 * ForkHubOuterRadius;
 ForkHubOuterRadius = EwHubOuterRadius+ForkArmExtraWidth;
-ForkHubInnerRadius = EwHubInnerRadius;
+// ForkHubInnerRadius = EwHubInnerRadius;
+ForkHubInnerRadius = 624_pilot_hole_r;
 ForkArmLength = ForkOuterRadius - ForkHubInnerRadius;
 
 module escapement_wheel()
