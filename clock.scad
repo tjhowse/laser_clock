@@ -1,5 +1,7 @@
 
-624_pilot_hole_r = 1.5;
+624_od = 13;
+624_id = 4;
+624_pilot_hole_r = 12.7/2;
 include <escapement.scad>
 
 // https://www.thingiverse.com/thing:3575
@@ -78,8 +80,6 @@ pendulum_mount_arm_width = 8;
 pendulum_mount_angle = -30;
 // Offset the arm so the m8 threaded rod can hang directly below the pivot point.
 pendulum_mount_arm_offset = 8;
-624_od = 13;
-624_id = 4;
 
 // This part glues onto the back of the escapement_fork and hangs down
 // a little way to provide a mounting point for the pendulum arm.
@@ -150,7 +150,7 @@ module bead_chain_gear_solid(simple=0) {
                     rotate([0,0,i]) translate([bead_chain_r,0,0]) rotate([0,0,(-360/bead_n)/2]) bead_chain_segment();
                 }
             }
-            translate([0,0,-50]) cylinder(r=624_pilot_hole_r/2, h=100);
+            translate([0,0,-50]) cylinder(r=624_pilot_hole_r, h=100);
             // Alignment key
             translate([624_od/2+(bead_chain_r-624_od/2)/3,-(thickness-laser_kerf)/2,-(thickness*3)/2]) cube([(bead_chain_r-624_od/2)/3, thickness-laser_kerf, thickness*3]);
         }
@@ -194,7 +194,7 @@ winch_gear_angle = 120;
 
 // These are the gears between the escapement wheel and the bead_chain_gear
 module winch_gears(z_scale=1, xy_scale=0) {
-    gear_pair(winch_gear_axis_spacing, winch_gear_small_tooth_count, winch_gear_big_tooth_count, thickness*2, 624_od, 624_pilot_hole_r);
+    gear_pair(winch_gear_axis_spacing, winch_gear_small_tooth_count, winch_gear_big_tooth_count, thickness*2, 624_od, 624_pilot_hole_r*2);
 }
 
 minute_gear_axis_spacing = ForkWheelDistance;
@@ -205,14 +205,14 @@ minute_gear_angle = 60;
 
 // These are the gears between the winch gear and the minute wheel
 module minute_gears(z_scale=1, xy_scale=0) {
-    gear_pair(minute_gear_axis_spacing, minute_gear_big_tooth_count, minute_gear_small_tooth_count, thickness*2, 624_pilot_hole_r, 624_od);
+    gear_pair(minute_gear_axis_spacing, minute_gear_big_tooth_count, minute_gear_small_tooth_count, thickness*2, 624_pilot_hole_r*2, 624_od);
 }
 
 z_scale=1;
 xy_scale=0;
 batch_export=false;
 
-part_revision_number = 7;
+part_revision_number = 8;
 // These are load-bearing comments. The make script awks this file for
 // lines between these markers to determine what it needs to render to a file.
 // PARTSMARKERSTART
@@ -260,19 +260,19 @@ if (batch_export) {
     // #translate([0,0,-thickness]) pendulum_mount();
     // pendulum_mount();
     // translate([30,wt+pendulum_arm_y+pendulum_mount_arm_offset/2,-pendulum_hanger_total_x/2]) rotate([90,0,0]) rotate([90,0,90]) m8_pendulum_hanger();
-    // render()
-    // {
-    //     rotate([0,0,180]){
+    render()
+    {
+        rotate([0,0,180]){
             scale([1,1,2]) union() {
                 escapement_fork();
                 translate([ForkWheelDistance,0,0]) rotate([0,0,pendulum_mount_angle]) pendulum_mount();
             }
-    //         scale([1,1,2]) escapement_wheel();
-    //         translate([0,0,-z_scale*thickness]) frame();
-    //         translate([0,0,z_scale*thickness*7]) frame();
-    //     }
-    //     translate([0,0,z_scale*thickness*2.5]) rotate([0,0,winch_gear_angle]) winch_gears(z_scale, xy_scale);
-    //     translate([-ForkWheelDistance,0,z_scale*thickness*5]) rotate([0,0,minute_gear_angle]) minute_gears(z_scale, xy_scale);
-    //     rotate([0,0,winch_gear_angle]) translate([winch_gear_axis_spacing,0,z_scale*thickness]) bead_chain_gear_solid(1);
-    // }
+            scale([1,1,2]) escapement_wheel();
+            translate([0,0,-z_scale*thickness]) frame();
+            translate([0,0,z_scale*thickness*7]) frame();
+        }
+        translate([0,0,z_scale*thickness*2.5]) rotate([0,0,winch_gear_angle]) winch_gears(z_scale, xy_scale);
+        translate([-ForkWheelDistance,0,z_scale*thickness*5]) rotate([0,0,minute_gear_angle]) minute_gears(z_scale, xy_scale);
+        rotate([0,0,winch_gear_angle]) translate([winch_gear_axis_spacing,0,z_scale*thickness]) bead_chain_gear_solid(1);
+    }
 }
