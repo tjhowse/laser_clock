@@ -1,7 +1,7 @@
 
 624_od = 13;
 624_id = 4;
-624_pilot_hole_r = 12.7/2;
+624_pilot_hole_r = 12.85/2;
 include <escapement.scad>
 
 // https://www.thingiverse.com/thing:3575
@@ -194,7 +194,7 @@ winch_gear_angle = 120;
 
 // These are the gears between the escapement wheel and the bead_chain_gear
 module winch_gears(z_scale=1, xy_scale=0) {
-    gear_pair(winch_gear_axis_spacing, winch_gear_small_tooth_count, winch_gear_big_tooth_count, thickness*2, 624_od, 624_pilot_hole_r*2);
+    gear_pair(winch_gear_axis_spacing, winch_gear_small_tooth_count, winch_gear_big_tooth_count, thickness*2, 624_od-0.1, 624_pilot_hole_r*2);
 }
 
 minute_gear_axis_spacing = ForkWheelDistance;
@@ -205,14 +205,14 @@ minute_gear_angle = 60;
 
 // These are the gears between the winch gear and the minute wheel
 module minute_gears(z_scale=1, xy_scale=0) {
-    gear_pair(minute_gear_axis_spacing, minute_gear_big_tooth_count, minute_gear_small_tooth_count, thickness*2, 624_pilot_hole_r*2, 624_od);
+    gear_pair(minute_gear_axis_spacing, minute_gear_big_tooth_count, minute_gear_small_tooth_count, thickness*2, 624_pilot_hole_r*2, 624_od-0.1);
 }
 
 z_scale=1;
 xy_scale=0;
 batch_export=false;
 
-part_revision_number = 8;
+part_revision_number = 9;
 // These are load-bearing comments. The make script awks this file for
 // lines between these markers to determine what it needs to render to a file.
 // PARTSMARKERSTART
